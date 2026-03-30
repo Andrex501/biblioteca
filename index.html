@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Biblioteca</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --users: #8b5cf6; 
+            --catalog: #3b82f6; 
+            --transact: #10b981; 
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #0f172a; margin-bottom: 5px; }
+        .header p { color: #64748b; margin-top: 0; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .panel {
+            background: white; padding: 20px; border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-top: 5px solid;
+        }
+        .panel-usuarios { border-top-color: var(--users); }
+        .panel-catalogo { border-top-color: var(--catalog); }
+        .panel-transacciones { border-top-color: var(--transact); }
+        .panel-actividad { border-top-color: #64748b; grid-column: 1 / -1; }
+
+        .section-title {
+            font-size: 1.2rem; margin-top: 0; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 13px; margin-bottom: 4px; font-weight: 600; color: #475569;}
+        input { 
+            width: 100%; padding: 10px; border: 1px solid var(--border); 
+            border-radius: 6px; box-sizing: border-box; background-color: #f8fafc;
+            transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--catalog); }
+        
+        button {
+            color: white; border: none; padding: 10px; border-radius: 6px; 
+            cursor: pointer; width: 100%; font-weight: bold; transition: 0.2s;
+            margin-top: 5px; margin-bottom: 15px;
+        }
+        button:hover { filter: brightness(0.9); transform: translateY(-1px); }
+        
+        .btn-users { background-color: var(--users); }
+        .btn-catalog { background-color: var(--catalog); }
+        .btn-transact { background-color: var(--transact); }
+        .btn-audit { background-color: #475569; }
+
+        /* Estilos del Historial de Actividad (Reemplazo de la consola) */
+        .feed-container {
+            max-height: 300px; overflow-y: auto; padding-right: 10px;
+        }
+        .feed-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px; border-radius: 8px; margin-bottom: 10px;
+            background-color: #f8fafc; border-left: 4px solid transparent;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .feed-icon { font-size: 1.2rem; }
+        .feed-content { flex: 1; }
+        .feed-time { font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px; }
+        .feed-text { font-size: 0.9rem; color: #334155; margin: 0; }
+
+        /* Colores por tipo de mensaje */
+        .feed-success { border-left-color: #10b981; background-color: #ecfdf5; }
+        .feed-error { border-left-color: #ef4444; background-color: #fef2f2; }
+        .feed-warn { border-left-color: #f59e0b; background-color: #fffbeb; }
+        .feed-info { border-left-color: #3b82f6; background-color: #eff6ff; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Sistema de Gestión de Biblioteca</h1>
+        <p>Prototipo Interactivo - Estructuras de Datos Lineales</p>
+    </div>
+
+    <div class="dashboard">
+        <div class="panel panel-usuarios">
+            <h2 class="section-title" style="color: var(--users);">👤 Registrar Usuario</h2>
+            <div class="form-group"><label>ID del Nuevo Usuario</label><input type="number" id="reg-id" placeholder="Ej: 104"></div>
+            <div class="form-group"><label>Nombre Completo</label><input type="text" id="reg-nombre" placeholder="Ej: Maria Lopez"></div>
+            <button class="btn-users" onclick="ejecutarRegistro()">Guardar Usuario</button>
+        </div>
+
+        <div class="panel panel-catalogo">
+            <h2 class="section-title" style="color: var(--catalog);">📚 Gestionar Catálogo</h2>
+            <div class="form-group"><label>ISBN</label><input type="text" id="nuevo-isbn" placeholder="Ej: 978-C"></div>
+            <div class="form-group"><label>Título del Libro</label><input type="text" id="nuevo-titulo" placeholder="Ej: Rayuela"></div>
+            <div class="form-group"><label>Autor</label><input type="text" id="nuevo-autor" placeholder="Ej: Julio Cortázar"></div>
+            <button class="btn-catalog" onclick="ejecutarAgregarLibro()">Agregar Libro</button>
+
+            <hr style="border:0; border-top:1px solid var(--border); margin: 20px 0;">
+            
+            <div class="form-group"><label>Buscar por ISBN</label><input type="text" id="busqueda-isbn" placeholder="Ej: 978-A"></div>
+            <button class="btn-catalog" style="background-color: #2563eb;" onclick="ejecutarBusqueda()">Buscar Libro</button>
+        </div>
+
+        <div class="panel panel-transacciones">
+            <h2 class="section-title" style="color: var(--transact);">🔄 Préstamos y Devoluciones</h2>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;"><label>ID Usuario</label><input type="number" id="prestamo-id" placeholder="101"></div>
+                <div class="form-group" style="flex: 1;"><label>ISBN Libro</label><input type="text" id="prestamo-isbn" placeholder="978-A"></div>
+            </div>
+            <button class="btn-transact" onclick="ejecutarPrestamo()">Prestar / Reservar (Cola)</button>
+
+            <div class="form-group" style="margin-top: 15px;"><label>ISBN Libro a Devolver</label><input type="text" id="devolucion-isbn" placeholder="978-A"></div>
+            <button class="btn-transact" style="background-color: #059669;" onclick="ejecutarDevolucion()">Devolver Libro (Pila)</button>
+            
+            <button class="btn-audit" onclick="auditarEstructuras()">Ver Estado de Estructuras</button>
+        </div>
+
+        <div class="panel panel-actividad">
+            <h2 class="section-title" style="color: #475569;">
+                📋 Historial de Operaciones
+                <span style="font-size: 0.8rem; cursor: pointer; color: #94a3b8; font-weight: normal;" onclick="document.getElementById('feed').innerHTML=''">Limpiar</span>
+            </h2>
+            <div class="feed-container" id="feed">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // NUEVA FUNCIÓN DE MENSAJES (Sustituye a la consola)
+        function mostrarMensaje(texto, tipo = 'info') {
+            const feedDiv = document.getElementById('feed');
+            const div = document.createElement('div');
+            
+            // Asignar iconos y clases según el tipo
+            let icono = 'ℹ️';
+            let claseTipo = 'feed-info';
+            
+            if(tipo === 'success') { icono = '✅'; claseTipo = 'feed-success'; }
+            else if(tipo === 'error') { icono = '❌'; claseTipo = 'feed-error'; }
+            else if(tipo === 'warn') { icono = '⚠️'; claseTipo = 'feed-warn'; }
+
+            const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            div.className = `feed-item ${claseTipo}`;
+            div.innerHTML = `
+                <div class="feed-icon">${icono}</div>
+                <div class="feed-content">
+                    <div class="feed-time">${hora}</div>
+                    <p class="feed-text">${texto}</p>
+                </div>
+            `;
+            
+            // Insertar al principio para que lo más nuevo salga arriba
+            feedDiv.insertBefore(div, feedDiv.firstChild);
+        }
+
+        // --- CLASES DE ESTRUCTURAS DE DATOS (Misma lógica intacta) ---
+        class Usuario {
+            constructor(idUsuario, nombreCompleto) {
+                this.idUsuario = idUsuario; this.nombreCompleto = nombreCompleto; this.estadoActivo = true;
+            }
+        }
+
+        class NodoLibro {
+            constructor(isbn, titulo, autor) {
+                this.isbn = isbn; this.titulo = titulo; this.autor = autor; this.disponible = true; this.siguiente = null;
+            }
+        }
+
+        class ListaEnlazadaCatalogo {
+            constructor() { this.cabeza = null; }
+            agregarLibro(isbn, titulo, autor) {
+                const nuevoLibro = new NodoLibro(isbn, titulo, autor);
+                if (!this.cabeza) this.cabeza = nuevoLibro;
+                else {
+                    let actual = this.cabeza;
+                    while (actual.siguiente) actual = actual.siguiente;
+                    actual.siguiente = nuevoLibro;
+                }
+            }
+            buscarLibro(isbn) {
+                let actual = this.cabeza;
+                while (actual) {
+                    if (actual.isbn === isbn) return actual;
+                    actual = actual.siguiente;
+                }
+                return null;
+            }
+        }
+
+        class ColaReservas {
+            constructor() { this.items = []; }
+            encolar(idUsuario, isbnLibro) { this.items.push({ idUsuario, isbnLibro }); }
+            desencolar() { return this.estaVacia() ? null : this.items.shift(); }
+            estaVacia() { return this.items.length === 0; }
+            verProximo() { return this.estaVacia() ? null : this.items[0]; }
+        }
+
+        class PilaDevoluciones {
+            constructor() { this.items = []; this.contador = 1; }
+            apilar(isbnLibro) {
+                this.items.push({ idTransaccion: this.contador++, isbnLibro: isbnLibro, fecha: new Date().toLocaleTimeString() });
+            }
+            estaVacia() { return this.items.length === 0; }
+            verUltima() { return this.estaVacia() ? null : this.items[this.items.length - 1]; }
+        }
+
+        class SistemaBiblioteca {
+            constructor() {
+                this.usuarios = [];
+                this.catalogo = new ListaEnlazadaCatalogo();
+                this.reservas = new ColaReservas();
+                this.historial = new PilaDevoluciones();
+            }
+
+            registrarUsuario(id, nombre) { 
+                if(this.buscarUsuario(id)) return false;
+                this.usuarios.push(new Usuario(id, nombre)); 
+                return true;
+            }
+            buscarUsuario(id) { return this.usuarios.find(u => u.idUsuario === id); }
+
+            prestarLibro(idUsuario, isbn) {
+                const usuario = this.buscarUsuario(idUsuario);
+                const libro = this.catalogo.buscarLibro(isbn);
+
+                if (!usuario) return mostrarMensaje(`El usuario con ID ${idUsuario} no está registrado.`, 'error');
+                if (!libro) return mostrarMensaje(`El libro con ISBN ${isbn} no existe en el catálogo.`, 'error');
+
+                if (libro.disponible) {
+                    libro.disponible = false;
+                    mostrarMensaje(`<b>Préstamo exitoso:</b> '${libro.titulo}' prestado a ${usuario.nombreCompleto}.`, 'success');
+                } else {
+                    this.reservas.encolar(idUsuario, isbn);
+                    mostrarMensaje(`<b>Añadido a la Cola:</b> '${libro.titulo}' está ocupado. ${usuario.nombreCompleto} está en lista de espera (FIFO).`, 'warn');
+                }
+            }
+
+            devolverLibro(isbn) {
+                const libro = this.catalogo.buscarLibro(isbn);
+                if (!libro) return mostrarMensaje(`El libro no pertenece al catálogo.`, 'error');
+
+                if (!libro.disponible) {
+                    libro.disponible = true;
+                    this.historial.apilar(isbn);
+                    mostrarMensaje(`<b>Devolución procesada (Pila):</b> '${libro.titulo}' ingresado al historial (LIFO).`, 'success');
+
+                    const proximaReserva = this.reservas.verProximo();
+                    if (proximaReserva && proximaReserva.isbnLibro === isbn) {
+                        const reserva = this.reservas.desencolar();
+                        mostrarMensaje(`<b>Notificación de Cola:</b> '${libro.titulo}' asignado automáticamente al usuario ID ${reserva.idUsuario}.`, 'info');
+                        this.prestarLibro(reserva.idUsuario, isbn); 
+                    }
+                } else {
+                    mostrarMensaje(`El libro '${libro.titulo}' ya se encontraba disponible en la biblioteca.`, 'warn');
+                }
+            }
+        }
+
+        const miBiblioteca = new SistemaBiblioteca();
+        miBiblioteca.registrarUsuario(101, "Carlos Pérez");
+        miBiblioteca.catalogo.agregarLibro("978-A", "El Quijote", "Cervantes");
+        mostrarMensaje("Sistema iniciado correctamente. Datos de prueba cargados (ID: 101, ISBN: 978-A).", 'info');
+
+        // --- FUNCIONES DE LA INTERFAZ ---
+        function ejecutarRegistro() {
+            const id = parseInt(document.getElementById('reg-id').value);
+            const nombre = document.getElementById('reg-nombre').value;
+            if(!id || !nombre) return mostrarMensaje("Por favor, llena todos los campos para registrar el usuario.", 'error');
+            
+            if(miBiblioteca.registrarUsuario(id, nombre)) {
+                mostrarMensaje(`<b>Arreglo actualizado:</b> Usuario ${nombre} (ID: ${id}) registrado con éxito.`, 'success');
+                document.getElementById('reg-id').value = ''; document.getElementById('reg-nombre').value = '';
+            } else {
+                mostrarMensaje(`El ID ${id} ya existe en el sistema.`, 'error');
+            }
+        }
+
+        function ejecutarAgregarLibro() {
+            const isbn = document.getElementById('nuevo-isbn').value;
+            const titulo = document.getElementById('nuevo-titulo').value;
+            const autor = document.getElementById('nuevo-autor').value;
+
+            if(!isbn || !titulo || !autor) return mostrarMensaje("Llena los 3 campos para agregar el libro al catálogo.", 'error');
+            if(miBiblioteca.catalogo.buscarLibro(isbn)) return mostrarMensaje(`El ISBN ${isbn} ya está registrado.`, 'error');
+
+            miBiblioteca.catalogo.agregarLibro(isbn, titulo, autor);
+            mostrarMensaje(`<b>Lista Enlazada actualizada:</b> Libro '${titulo}' añadido al catálogo.`, 'success');
+            
+            document.getElementById('nuevo-isbn').value = '';
+            document.getElementById('nuevo-titulo').value = '';
+            document.getElementById('nuevo-autor').value = '';
+        }
+
+        function ejecutarBusqueda() {
+            const isbn = document.getElementById('busqueda-isbn').value;
+            if(!isbn) return mostrarMensaje("Ingresa un ISBN para buscar.", 'error');
+            
+            const libro = miBiblioteca.catalogo.buscarLibro(isbn);
+            if(libro) mostrarMensaje(`<b>Resultado de búsqueda:</b> '${libro.titulo}' de ${libro.autor}. Estado: ${libro.disponible ? 'Disponible' : 'Prestado'}`, 'success');
+            else mostrarMensaje(`El ISBN ${isbn} no se encontró en el catálogo.`, 'warn');
+        }
+
+        function ejecutarPrestamo() {
+            const id = parseInt(document.getElementById('prestamo-id').value);
+            const isbn = document.getElementById('prestamo-isbn').value;
+            if(!id || !isbn) return mostrarMensaje("Ingresa el ID del usuario y el ISBN del libro para el préstamo.", 'error');
+            miBiblioteca.prestarLibro(id, isbn);
+        }
+
+        function ejecutarDevolucion() {
+            const isbn = document.getElementById('devolucion-isbn').value;
+            if(!isbn) return mostrarMensaje("Ingresa el ISBN del libro a devolver.", 'error');
+            miBiblioteca.devolverLibro(isbn);
+        }
+
+        function auditarEstructuras() {
+            const ultima = miBiblioteca.historial.verUltima();
+            const proxima = miBiblioteca.reservas.verProximo();
+            
+            let msgPila = ultima ? `Última transacción: Libro ${ultima.isbnLibro} a las ${ultima.fecha}` : 'La Pila está vacía.';
+            let msgCola = proxima ? `Siguiente en espera: Usuario ${proxima.idUsuario} por el libro ${proxima.isbnLibro}` : 'La Cola está vacía.';
+            
+            mostrarMensaje(`<b>Auditoría de Estructuras:</b><br>- PILA (Devoluciones): ${msgPila}<br>- COLA (Reservas): ${msgCola}`, 'info');
+        }
+    </script>
+</body>
+</html>
