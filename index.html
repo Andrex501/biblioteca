@@ -18,15 +18,17 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 20px;
+            /* Padding ajustado para celulares */
+            padding: 15px 10px; 
         }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: #0f172a; margin-bottom: 5px; }
-        .header p { color: #64748b; margin-top: 0; }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { color: #0f172a; margin-bottom: 5px; font-size: 1.5rem; }
+        .header p { color: #64748b; margin-top: 0; font-size: 0.9rem; }
         
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            /* Diseño base para celular: 1 sola columna */
+            grid-template-columns: 1fr;
             gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
@@ -40,27 +42,33 @@
         .panel-usuarios { border-top-color: var(--users); }
         .panel-catalogo { border-top-color: var(--catalog); }
         .panel-transacciones { border-top-color: var(--transact); }
-        .panel-actividad { border-top-color: #64748b; grid-column: 1 / -1; }
+        .panel-actividad { border-top-color: #64748b; }
 
         .section-title {
-            font-size: 1.2rem; margin-top: 0; margin-bottom: 15px;
+            font-size: 1.1rem; margin-top: 0; margin-bottom: 15px;
             padding-bottom: 10px; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        .form-group { margin-bottom: 12px; }
+        .form-group { margin-bottom: 12px; width: 100%; }
         label { display: block; font-size: 13px; margin-bottom: 4px; font-weight: 600; color: #475569;}
         input { 
-            width: 100%; padding: 10px; border: 1px solid var(--border); 
+            width: 100%; padding: 12px 10px; /* Padding más amplio para tocar con el dedo en móviles */
+            border: 1px solid var(--border); 
             border-radius: 6px; box-sizing: border-box; background-color: #f8fafc;
             transition: border-color 0.2s;
+            font-size: 16px; /* Evita que los iPhone hagan zoom al tocar el input */
         }
         input:focus { outline: none; border-color: var(--catalog); }
         
+        .input-row {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
         button {
-            color: white; border: none; padding: 10px; border-radius: 6px; 
+            color: white; border: none; padding: 12px; border-radius: 6px; 
             cursor: pointer; width: 100%; font-weight: bold; transition: 0.2s;
-            margin-top: 5px; margin-bottom: 15px;
+            margin-top: 5px; margin-bottom: 15px; font-size: 1rem;
         }
         button:hover { filter: brightness(0.9); transform: translateY(-1px); }
         
@@ -69,9 +77,8 @@
         .btn-transact { background-color: var(--transact); }
         .btn-audit { background-color: #475569; }
 
-        /* Estilos del Historial de Actividad (Reemplazo de la consola) */
         .feed-container {
-            max-height: 300px; overflow-y: auto; padding-right: 10px;
+            max-height: 350px; overflow-y: auto; padding-right: 5px;
         }
         .feed-item {
             display: flex; align-items: flex-start; gap: 12px;
@@ -81,16 +88,27 @@
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .feed-icon { font-size: 1.2rem; }
-        .feed-content { flex: 1; }
+        .feed-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .feed-content { flex: 1; min-width: 0; /* Previene desbordamientos de texto */ }
         .feed-time { font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px; }
-        .feed-text { font-size: 0.9rem; color: #334155; margin: 0; }
+        .feed-text { font-size: 0.9rem; color: #334155; margin: 0; word-wrap: break-word; }
 
-        /* Colores por tipo de mensaje */
         .feed-success { border-left-color: #10b981; background-color: #ecfdf5; }
         .feed-error { border-left-color: #ef4444; background-color: #fef2f2; }
         .feed-warn { border-left-color: #f59e0b; background-color: #fffbeb; }
         .feed-info { border-left-color: #3b82f6; background-color: #eff6ff; }
+
+        /* --- MEDIA QUERIES PARA TABLETS Y COMPUTADORAS --- */
+        @media (min-width: 768px) {
+            body { padding: 30px; }
+            .header h1 { font-size: 2rem; }
+            .header p { font-size: 1rem; }
+            .dashboard { 
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+            }
+            .panel-actividad { grid-column: 1 / -1; }
+            .input-row { flex-direction: row; }
+        }
     </style>
 </head>
 <body>
@@ -124,9 +142,9 @@
         <div class="panel panel-transacciones">
             <h2 class="section-title" style="color: var(--transact);">🔄 Préstamos y Devoluciones</h2>
             
-            <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex: 1;"><label>ID Usuario</label><input type="number" id="prestamo-id" placeholder="101"></div>
-                <div class="form-group" style="flex: 1;"><label>ISBN Libro</label><input type="text" id="prestamo-isbn" placeholder="978-A"></div>
+            <div class="input-row">
+                <div class="form-group"><label>ID Usuario</label><input type="number" id="prestamo-id" placeholder="101"></div>
+                <div class="form-group"><label>ISBN Libro</label><input type="text" id="prestamo-isbn" placeholder="978-A"></div>
             </div>
             <button class="btn-transact" onclick="ejecutarPrestamo()">Prestar / Reservar (Cola)</button>
 
@@ -139,7 +157,7 @@
         <div class="panel panel-actividad">
             <h2 class="section-title" style="color: #475569;">
                 📋 Historial de Operaciones
-                <span style="font-size: 0.8rem; cursor: pointer; color: #94a3b8; font-weight: normal;" onclick="document.getElementById('feed').innerHTML=''">Limpiar</span>
+                <span style="font-size: 0.8rem; cursor: pointer; color: #94a3b8; font-weight: normal; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;" onclick="document.getElementById('feed').innerHTML=''">Limpiar</span>
             </h2>
             <div class="feed-container" id="feed">
                 </div>
@@ -147,12 +165,10 @@
     </div>
 
     <script>
-        // NUEVA FUNCIÓN DE MENSAJES (Sustituye a la consola)
         function mostrarMensaje(texto, tipo = 'info') {
             const feedDiv = document.getElementById('feed');
             const div = document.createElement('div');
             
-            // Asignar iconos y clases según el tipo
             let icono = 'ℹ️';
             let claseTipo = 'feed-info';
             
@@ -171,11 +187,9 @@
                 </div>
             `;
             
-            // Insertar al principio para que lo más nuevo salga arriba
             feedDiv.insertBefore(div, feedDiv.firstChild);
         }
 
-        // --- CLASES DE ESTRUCTURAS DE DATOS (Misma lógica intacta) ---
         class Usuario {
             constructor(idUsuario, nombreCompleto) {
                 this.idUsuario = idUsuario; this.nombreCompleto = nombreCompleto; this.estadoActivo = true;
@@ -283,7 +297,6 @@
         miBiblioteca.catalogo.agregarLibro("978-A", "El Quijote", "Cervantes");
         mostrarMensaje("Sistema iniciado correctamente. Datos de prueba cargados (ID: 101, ISBN: 978-A).", 'info');
 
-        // --- FUNCIONES DE LA INTERFAZ ---
         function ejecutarRegistro() {
             const id = parseInt(document.getElementById('reg-id').value);
             const nombre = document.getElementById('reg-nombre').value;
